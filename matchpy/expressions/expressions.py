@@ -252,7 +252,8 @@ class _OperationMeta(ABCMeta):
         if cls.arity == Arity.unary and cls.infix:
             raise TypeError('{}: Unary operations cannot use infix notation.'.format(name))
 
-        cls.head = cls
+        if cls.head is None:
+            cls.head = cls
 
     def __repr__(cls):
         if cls is Operation:
@@ -321,6 +322,12 @@ class Operation(Expression, metaclass=_OperationMeta):
 
     Do not instantiate this class directly, but create a subclass for every operation in your domain.
     You can use :meth:`new` as a shortcut for doing so.
+    """
+
+    head = None
+    """head: Type or class for the operator to match against.
+
+    By default it's the current class.
     """
 
     name = None  # type: str
@@ -435,6 +442,7 @@ class Operation(Expression, metaclass=_OperationMeta):
             arity: Arity,
             class_name: str=None,
             *,
+            head: Type=None,
             associative: bool=False,
             commutative: bool=False,
             one_identity: bool=False,
@@ -479,6 +487,7 @@ class Operation(Expression, metaclass=_OperationMeta):
 
         return type(
             class_name, (Operation, ), {
+                'head': head,
                 'name': name,
                 'arity': arity,
                 'associative': associative,
@@ -848,9 +857,16 @@ class Wildcard(Atom):
             )
         return '{!s}({!r}, {!r})'.format(type(self).__name__, self.min_count, self.fixed_size)
 
-    def __lt__(self, other):
-        if not isinstance(other, Expression):
+    def __gt__(self, other):
+        result = self.__lt__(other)
+        if result is NotImplemented:
             return NotImplemented
+        else:
+            return not result and self != other
+
+    def __lt__(self, other):
+        # if not isinstance(other, Expression):
+        #     return NotImplemented
         if not isinstance(other, Wildcard):
             return type(self).__name__ < type(other).__name__
         if self.min_count != other.min_count or self.fixed_size != other.fixed_size:
