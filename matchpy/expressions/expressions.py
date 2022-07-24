@@ -58,6 +58,7 @@ from multiset import Multiset
 
 from ..utils import cached_property
 
+
 __all__ = [
     'Expression', 'Arity', 'Atom', 'Symbol', 'Wildcard', 'Operation', 'SymbolWildcard', 'Pattern', 'make_dot_variable',
     'make_plus_variable', 'make_star_variable', 'make_symbol_variable', 'AssociativeOperation', 'CommutativeOperation',
@@ -567,12 +568,14 @@ class Operation(Expression, metaclass=_OperationMeta):
         return False
 
     def _is_constant(self) -> bool:
-        return all(x.is_constant for x in self.operands)
+        from .functions import is_constant, is_syntactic
+        return all(is_constant(x) for x in self.operands)
 
     def _is_syntactic(self) -> bool:
+        from .functions import is_constant, is_syntactic
         if self.associative or self.commutative:
             return False
-        return all(o.is_syntactic for o in self.operands)
+        return all(is_syntactic(o) for o in self.operands)
 
     def collect_variables(self, variables) -> None:
         if self.variable_name:

@@ -5,7 +5,7 @@ from matchpy.functions import substitute
 
 import pytest
 from pydantic import ValidationError
-
+import ibis.expr.operations as ops
 from matchpy import Operation, Arity, Wildcard, match, Pattern, ReplacementRule, replace_all, is_match, match_anywhere, preorder_iter_with_position
 from pydantic.dataclasses import dataclass
 
@@ -109,8 +109,8 @@ def test_is_match():
 
 def test_replacement():
     rules = [
-        (Pattern(Multiply.pattern(one, x)), lambda x: x),
-        (Pattern(Add.pattern(x, zero)), lambda x: x)
+        (Pattern(ops.Multiply.pattern(x, one)), lambda x: x),
+        (Pattern(ops.Add.pattern(x, zero)), lambda x: x)
     ]
     result = replace_all(expr, rules)
 
