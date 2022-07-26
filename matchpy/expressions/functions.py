@@ -161,8 +161,14 @@ def _(old_operation, new_operands, variable_name=True):
     return type(old_operation)(new_operands)
 
 
+# TODO(kszucs): update Expression to implement match protocol and decompose
+# op_iter to sequence overloads
 @singledispatch
 def op_iter(operation):
+    # try:
+    #     return iter(operation.__match_args__)
+    # except AttributeError:
+    #     return iter(operation)
     return iter(operation)
 
 
@@ -173,4 +179,8 @@ def _(operation):
 
 @singledispatch
 def op_len(operation):
+    # try:
+    #     return len(operation.__match_args__)
+    # except AttributeError:
+    #     return len(operation)
     return len(operation)

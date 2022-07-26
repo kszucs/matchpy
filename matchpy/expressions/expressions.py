@@ -437,8 +437,9 @@ class Operation(Expression, metaclass=_OperationMeta):
             return '{!s}({!s}, variable_name={})'.format(type(self).__name__, operand_str, self.variable_name)
         return '{!s}({!s})'.format(type(self).__name__, operand_str)
 
-    @staticmethod
+    @classmethod
     def new(
+            cls,
             name: str,
             arity: Arity,
             class_name: str=None,
@@ -487,7 +488,7 @@ class Operation(Expression, metaclass=_OperationMeta):
             raise ValueError("Invalid identifier for new operator class.")
 
         return type(
-            class_name, (Operation, ), {
+            class_name, (cls, ), {
                 'head': head,
                 'name': name,
                 'arity': arity,
