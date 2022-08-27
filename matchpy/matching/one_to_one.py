@@ -9,7 +9,7 @@ from ..expressions.expressions import (
 from ..expressions.constraints import Constraint
 from ..expressions.substitution import Substitution
 from ..expressions.functions import (
-    is_constant, preorder_iter_with_position, match_head, create_operation_expression, op_iter, op_len
+    is_constant, preorder_iter_with_position, match_head, get_head, create_operation_expression, op_iter, op_len
 )
 from ..utils import (
     VariableWithCount, commutative_sequence_variable_partition_iter, fixed_integer_vector_iter, weak_composition_iter,
@@ -103,7 +103,7 @@ def _match(subjects: List[Expression], pattern: Expression, subst: Substitution,
     elif isinstance(pattern, Operation):
         if isinstance(pattern, OneIdentityOperation):
             yield from _match_one_identity(subjects, pattern, subst, constraints)
-        if len(subjects) != 1 or not isinstance(subjects[0], pattern.__class__):
+        if len(subjects) != 1 or not isinstance(subjects[0], get_head(pattern)):
             return
         op_expr = cast(Operation, subjects[0])
         # if not op_expr.symbols >= pattern.symbols:

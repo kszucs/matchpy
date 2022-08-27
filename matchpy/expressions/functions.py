@@ -45,6 +45,9 @@ def get_head(expression):
         if isinstance(expression, SymbolWildcard):
             return expression.symbol_type
         return None
+    if isinstance(expression, Operation):
+        if hasattr(expression, 'head'):
+            return expression.head
     return type(expression)
 
 
@@ -140,12 +143,13 @@ def rename_variables(expression: Expression, renaming: Dict[str, str]) -> Expres
 
 
 @singledispatch
-def create_operation_expression(old_operation, new_operands, variable_name=True):
+def create_operation_expression(old_operation, new_operands, variable_name=False):
+    typ = get_head(old_operation)
     if variable_name is True:
         variable_name = getattr(old_operation, 'variable_name', None)
     if variable_name is False:
-        return operation(*new_operands)
-    return type(old_operation)(*new_operands, variable_name=variable_name)
+        return typ(*new_operands)
+    return typ(*new_operands, variable_name=variable_name)
 
 
 @create_operation_expression.register(list)
@@ -157,8 +161,14 @@ def _(old_operation, new_operands, variable_name=True):
     return type(old_operation)(new_operands)
 
 
+# TODO(kszucs): update Expression to implement match protocol and decompose
+# op_iter to sequence overloads
 @singledispatch
 def op_iter(operation):
+    # try:
+    #     return iter(operation.__match_args__)
+    # except AttributeError:
+    #     return iter(operation)
     return iter(operation)
 
 
@@ -169,4 +179,8 @@ def _(operation):
 
 @singledispatch
 def op_len(operation):
+    # try:
+    #     return len(operation.__match_args__)
+    # except AttributeError:
+    #     return len(operation)
     return len(operation)

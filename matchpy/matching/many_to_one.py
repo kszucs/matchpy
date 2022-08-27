@@ -52,7 +52,7 @@ from ..expressions.expressions import (
 from ..expressions.substitution import Substitution
 from ..expressions.functions import (
     is_anonymous, contains_variables_from_set, create_operation_expression, preorder_iter_with_position,
-    rename_variables, op_iter, preorder_iter, op_len
+    rename_variables, op_iter, preorder_iter, op_len, get_head
 )
 from ..utils import (VariableWithCount, commutative_sequence_variable_partition_iter)
 from .. import functions
@@ -241,7 +241,8 @@ class _MatchIter:
 
     @staticmethod
     def _get_heads(expression: Expression) -> Iterator[HeadType]:
-        for base in type(expression).__mro__:
+        head = get_head(expression)
+        for base in head.__mro__:
             if base is not object:
                 yield base
         if not isinstance(expression, Operation):
@@ -514,7 +515,7 @@ class ManyToOneMatcher:
         if expression is _EPS:
             return _EPS, None
         if isinstance(expression, Operation):
-            head = label = type(expression)
+            head = label = get_head(expression)
         else:
             label = expression
             if isinstance(label, SymbolWildcard):

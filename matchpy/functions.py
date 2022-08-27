@@ -133,7 +133,7 @@ def replace(expression: Expression, position: Sequence[int], replacement: Replac
     pos = position[0]
     operands = list(op_iter(expression))
     subexpr = replace(operands[pos], position[1:], replacement)
-    if isinstance(subexpr, Sequence):
+    if isinstance(subexpr, (tuple, list)):
         new_operands = tuple(operands[:pos]) + tuple(subexpr) + tuple(operands[pos + 1:])
         return create_operation_expression(expression, new_operands)
     operands[pos] = subexpr
